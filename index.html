@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Roll Out Calc</title>
+    </head>
+    
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" Numberegrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js" Numberegrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" Numberegrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="form-row">
+                    <div class="col">
+                        <label for="spur">Spur:</label>
+                        <input type="number" id="spur" class="form-control" placeholder="Spur" value="72" min="70" max="120">
+                        
+                    </div>
+                    <div class="col">
+                        <label for="pinion">Pinion:</label>
+                        <input type="number" id="pinion" class="form-control" placeholder="Pinion" value="54" min="18" max="70">
+                        
+                    </div>
+                    <div class="col">
+                        <label for="tireDia">Tire Diameter:</label>
+                        <input type="number" id="tireDia" class="form-control" placeholder="Tire Diameter" value="42" min="36" max="60" step="1">
+                        
+                    </div>
+                    <div class="col">
+                        <label for="fdrive">Internal Drive Ratio:</label>
+                        <input type="number" id="fdrive" class="form-control" placeholder="Final Drive" value="1" min="1" max="2" step=".1">
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">&nbsp;</div>
+        </div>
+        <div id="output" class="row">
+            
+        </div>
+    </div>
+    <script>
+        $(function() {
+            let calc = {
+                pie: 3.14,
+                numRange: 5,
+                defaultHeaderBgColor: 'bg-primary',
+                selectedBgColor: 'bg-success',
+                gutterColor: 'bg-secondary',
+                guideColor: 'bg-info',
+                txtLight: 'text-light',
+                spur: 72,
+                pinion: 51,
+                tireDiameter: 42,
+                fDrive: 1,
+                startSpur: 0,
+                startPinion: 0,
+                endSpur: 0,
+                endPinion: 0,
+                rollOut: 0,
+                doCalc: function(){
+                    //console.log(parseInt(document.getElementById('tireDia').value));
+                    spur = parseInt(document.getElementById('spur').value);
+                    pinion = parseInt(document.getElementById('pinion').value);
+                    tireDiameter = parseInt(document.getElementById('tireDia').value);
+                    fDrive = document.getElementById('fdrive').value;
+                    startPinion = parseInt(pinion - this.numRange);
+                    startSpur = parseInt(spur - this.numRange);
+                    endPinion = parseInt(pinion + this.numRange);
+                    endSpur = parseInt(spur + this.numRange);
+
+                    this.buildRollOutList();
+                },
+                buildRollOutList: function (){
+                    let header;
+                    let bg;
+
+                    $('#output').empty();
+                    $('#output').append("<div class='col-md-1 bg-dark'></div>");
+                    for(let h = startSpur; h <= endSpur; h++){
+                        header = this.defaultHeaderBgColor;
+                        if(spur === h){
+                            header = this.selectedBgColor + ' ' + this.txtLight;
+                        }
+
+                        $('#output').append("<div class='col-md-1 text-center " + header + "'>"+h+"</div>");
+                    }
+
+                    let curPinion = 0;
+                    for(let p = startPinion; p <= endPinion; p++){
+                        header = this.gutterColor;
+                        if(pinion === p){
+                            header = this.selectedBgColor + ' ' + this.txtLight;
+                        }
+                        $('#output').append("<div class='col-md-1 text-center " + header + "'>"+ p +"</div>");
+                        for(let h2 = startSpur; h2 <= endSpur; h2++){
+                            bg = '';
+
+                            if(pinion === p){
+                                bg = this.guideColor;
+                            }
+
+                            if(spur === h2){
+                                bg = this.guideColor;
+                            }
+
+                            if(pinion === p && spur === h2){
+                                bg = this.selectedBgColor + ' ' + this.txtLight;
+                            }
+
+                            $('#output').append("<div class='col-md-1 text-center " + bg +"'>"+this.calculateRollOut(tireDiameter,h2,p,fDrive)+"</div>");
+                        }
+                    }
+                },
+                calculateRollOut: function (tire, spur, pinion, drive){
+                    //console.log('data: ', tire + ' / ' + spur + ' / ' + pinion + ' / ' + drive);
+                    let preRollOut = (tire * this.pie) / ((spur / pinion) * drive);
+                    rollOut = Math.round(preRollOut * 100) / 100;
+                    return rollOut;
+                },
+                updateVal: function updateVal(event){
+                    this.doCalc();
+                }
+            };
+            
+            calc.doCalc();
+
+            $(":input").change(function(){
+                calc.doCalc();
+            })
+        });
+        
+    </script>
+</body>
+</html>
